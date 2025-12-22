@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>持牌酒店及賓館查詢系統</title>
+    <!-- Awesome Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <style>
+        .element-hidden {
+            display: none !important;
+        }
+
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #1f2937;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: #111827;
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-title {
+            color: #111827;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-title i {
+            color: #4f46e5;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #374151;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-control.select {
+            cursor: pointer;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-icon {
+            font-size: 0.9rem;
+        }
+
+        /* Data Section */
+        .data-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+
+        /* Data Header */
+        .data-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .data-header h2 {
+            color: #111827;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .data-header .subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .sort-label {
+            font-size: 0.875rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        /* Data Stats */
+        .data-stats {
+            display: flex;
+            justify-content: space-around;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-item {
+            text-align: center;
+            width: 100%;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4f46e5;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* Accordion Container */
+        .accordion-container {
+            margin-top: 20px;
+        }
+
+        /* Group Item Styles */
+        .group-item {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .group-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .group-header {
+            background: #4f46e5;
+            color: white;
+            padding: 14px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .group-header:hover {
+            background: #4338ca;
+        }
+
+        .group-header i {
+            transition: transform 0.3s ease;
+        }
+
+        .group-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .group-content {
+            background: white;
+        }
+
+        .license-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        /* License Item Styles */
+        .license-item {
+            background: white;
+            border-top: 1px solid #f3f4f6;
+            padding: 15px 20px;
+            transition: all 0.2s ease;
+        }
+
+        .license-item:hover {
+            background: #f9fafb;
+        }
+
+        .license-item:last-child {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .license-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .license-number {
+            background: #f5c842;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .license-number i {
+            font-size: 0.8rem;
+        }
+
+        .expand-details {
+            background: transparent;
+            border: 1px solid #d1d5db;
+            color: #6b7280;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .expand-details:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .expand-details.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .license-details {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .license-details.show {
+            display: block;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #6b7280;
+            word-break: break-word;
+        }
+
+        .info-value a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading & No Data */
+        .loading,
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+                background: #4f46e5;
+            }
+
+            .container {
+                gap: 16px;
+            }
+
+            .header {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .data-section {
+                max-height: 400px;
+                padding: 15px;
+            }
+
+            .data-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .data-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .info-row {
+                flex-direction: column;
+                margin-bottom: 15px;
+            }
+
+            .info-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .group-header {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+
+            .license-header {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .expand-details {
+                align-self: stretch;
+                justify-content: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filter-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Desktop Enhancements */
+        @media (min-width: 1200px) {
+            .data-section {
+                max-height: 600px;
+            }
+        }
+
+        /* Smooth Transitions */
+        * {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>持牌酒店及賓館查詢系統</h1>
+            <p class="subtitle">香港民政事務總署持牌酒店及賓館位置及詳細資訊</p>
+        </header>
+        <main class="main-content">
+            <section class="filter-section">
+                <h3 class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    篩選與排序
+                </h3>
+                <form id="filter-form" class="filter-form">
+                    <div class="form-group">
+                        <label for="search-name"><i class="fas fa-search"></i> 搜尋場所名稱</label>
+                        <input type="text" id="search-name" class="form-control" placeholder="輸入場所名稱關鍵字...">
+                    </div>
+                    <div class="form-group" style="display: none;">
+                        <label for="filter-license"><i class="fas fa-id-card"></i> 牌照類別</label>
+                        <select id="filter-license" class="form-control select">
+                            <option value="">所有類別</option>
+                            <option value="H">酒店 (H)</option>
+                            <option value="G">賓館 (G)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-district"><i class="fas fa-map-marker-alt"></i> 地區篩選</label>
+                        <select id="filter-district" class="form-control select">
+                            <option value="">所有地區</option>
+                            <option value="九龍">九龍</option>
+                            <option value="香港島">香港島</option>
+                            <option value="新界">新界</option>
+                            <option value="離島">離島</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sort-by"><i class="fas fa-sort"></i> 排序方式</label>
+                        <select id="sort-by" class="form-control select">
+                            <option value="name-asc">場所名稱 (A-Z)</option>
+                            <option value="name-desc">場所名稱 (Z-A)</option>
+                            <option value="license-count-asc">牌照數目 (少→多)</option>
+                            <option value="license-count-desc">牌照數目 (多→少)</option>
+                        </select>
+                    </div>
+                </form>
+                <div class="filter-actions">
+                    <button type="button" class="btn btn-secondary" onclick="resetFilters()">
+                        <i class="fas fa-redo btn-icon"></i>
+                        重置篩選
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="applyFilters()" style="display:none">
+                        <i class="fas fa-check btn-icon"></i>
+                        應用篩選
+                    </button>
+                </div>
+            </section>
+
+            <section class="data-section">
+                <div class="data-header">
+                    <div>
+                        <h2>酒店及賓館列表</h2>
+                        <p class="subtitle">按場所名稱分組顯示，點擊場所名稱展開查看詳細牌照資訊</p>
+                    </div>
+                    <div class="sort-controls">
+                        <span class="sort-label">排序:</span>
+                        <select id="sort-select" class="form-control select" onchange="applySort()"
+                            style="width: auto;">
+                            <option value="name-asc">場所名稱 (A-Z)</option>
+                            <option value="name-desc">場所名稱 (Z-A)</option>
+                            <option value="license-count-asc">牌照數目 (少→多)</option>
+                            <option value="license-count-desc">牌照數目 (多→少)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex flex-column">
+                    <div class="stat-item" style="margin-bottom: 15px">
+                        <span id="updated-date" class="stat-value">-</span>
+                        <span class="stat-label">資料更新日期</span>
+                    </div>
+                    <div class="data-stats">
+                        <div class="stat-item">
+                            <span id="total-hotels" class="stat-value">0</span>
+                            <span class="stat-label">場所總數</span>
+                        </div>
+                        <div class="stat-item">
+                            <span id="total-licenses" class="stat-value">0</span>
+                            <span class="stat-label">牌照總數</span>
+                        </div>
+                        <div class="stat-item">
+                            <span id="filtered-count" class="stat-value">0</span>
+                            <span class="stat-label">篩選結果</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-container" id="accordion-container">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>正在加載酒店及賓館資料...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer class="footer">
+            <p>持牌酒店及賓館查詢系統 | 資料來源: 香港民政事務總署 | 支援桌面及流動裝置</p>
+        </footer>
+    </div>
+
+    <!-- Papa Parse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        // 定義數據源 - 持牌酒店及賓館CSV
+        const DATA_SOURCE_URL = 'https://www.hadla.gov.hk/psi/licensed-hotels-and-guesthouses/licensed_hotels_and_guesthouses.csv';
+
+        // 全局變量
+        let allHotels = [];
+        let groupedHotels = []; // 分組後的數據
+        let filteredHotels = [];
+        let totalLicenses = 0;
+        let currentFilter = {
+            searchName: '',
+            licenseType: '',
+            district: '',
+            sortBy: 'name-asc'
+        };
+
+        // 初始化應用
+        document.addEventListener('DOMContentLoaded', function () {
+            loadHotelData();
+
+            // 添加輸入框實時搜尋
+            document.getElementById('search-name').addEventListener('input', function (e) {
+                currentFilter.searchName = e.target.value;
+                applyFilters();
+            });
+
+            // 添加下拉選單變更監聽
+            document.getElementById('filter-license').addEventListener('change', function (e) {
+                currentFilter.licenseType = e.target.value;
+                applyFilters();
+            });
+
+            document.getElementById('filter-district').addEventListener('change', function (e) {
+                currentFilter.district = e.target.value;
+                applyFilters();
+            });
+
+            document.getElementById('sort-by').addEventListener('change', function (e) {
+                currentFilter.sortBy = e.target.value;
+                applyFilters();
+            });
+
+            document.getElementById('sort-select').addEventListener('change', function (e) {
+                currentFilter.sortBy = e.target.value;
+                document.getElementById('sort-by').value = e.target.value;
+                applyFilters();
+            });
+        });
+
+        async function loadHotelData() {
+            try {
+                const response = await fetch(DATA_SOURCE_URL);
+                const csvText = await response.text();
+
+                // 使用 PapaParse 解析 CSV
+                Papa.parse(csvText, {
+                    header: true,
+                    complete: function (results) {
+                        if (results.data && results.data.length > 0) {
+                            allHotels = results.data.filter(hotel =>
+                                hotel['場所名稱'] && hotel['場所地址'] && hotel['Licence No.']
+                            );
+
+                            // 按場所名稱分組
+                            groupHotelsByName();
+                            updateStatistics();
+                            updateHotelsList();
+
+                            showNotification(`成功加載 ${allHotels.length} 張牌照資料，共 ${groupedHotels.length} 個場所`, 'success');
+                        } else {
+                            document.getElementById('accordion-container').innerHTML =
+                                '<div class="no-data"><i class="fas fa-exclamation-triangle"></i><p>未找到酒店資料</p></div>';
+                        }
+                    },
+                    error: function (error) {
+                        console.error('解析CSV時出錯:', error);
+                        document.getElementById('accordion-container').innerHTML =
+                            '<div class="no-data"><i class="fas fa-exclamation-triangle"></i><p>解析數據時出錯</p></div>';
+                        showNotification('解析數據時出錯，請稍後再試', 'error');
+                    }
+                });
+
+            } catch (error) {
+                console.error('加載數據時出錯:', error);
+                document.getElementById('accordion-container').innerHTML =
+                    '<div class="no-data"><i class="fas fa-exclamation-triangle"></i><p>加載數據時出錯</p></div>';
+                showNotification('加載數據時出錯，請稍後再試', 'error');
+            }
+        }
+
+        // 按場所名稱分組酒店
+        function groupHotelsByName() {
+            const grouped = {};
+
+            allHotels.forEach((hotel, index) => {
+                const name = hotel['場所名稱'] || '未命名';
+
+                if (!grouped[name]) {
+                    grouped[name] = {
+                        name: name,
+                        licenses: [],
+                        licenseCount: 0
+                    };
+                }
+
+                grouped[name].licenses.push({
+                    ...hotel,
+                    id: index
+                });
+                grouped[name].licenseCount++;
+            });
+
+            // 轉換為數組
+            groupedHotels = Object.values(grouped);
+            filteredHotels = [...groupedHotels];
+        }
+
+        function updateStatistics() {
+            document.getElementById('total-hotels').textContent = groupedHotels.length;
+            document.getElementById('total-licenses').textContent = allHotels.length;
+            document.getElementById('filtered-count').textContent = filteredHotels.length;
+
+            // 設置當前日期作為資料更新日期
+            const now = new Date();
+            const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            document.getElementById('updated-date').textContent = formattedDate;
+        }
+
+        function applyFilters() {
+            let filtered = [...groupedHotels];
+
+            // 名稱搜尋篩選
+            if (currentFilter.searchName) {
+                const searchTerm = currentFilter.searchName.toLowerCase();
+                filtered = filtered.filter(group => {
+                    const name = group.name.toLowerCase();
+                    return name.includes(searchTerm);
+                });
+            }
+
+            // 牌照類別篩選
+            if (currentFilter.licenseType) {
+                filtered = filtered.map(group => {
+                    const filteredLicenses = group.licenses.filter(license => {
+                        const licenseNo = license['Licence No.'] || '';
+                        return licenseNo.startsWith(currentFilter.licenseType);
+                    });
+
+                    if (filteredLicenses.length > 0) {
+                        return {
+                            ...group,
+                            licenses: filteredLicenses,
+                            licenseCount: filteredLicenses.length
+                        };
+                    }
+                    return null;
+                }).filter(group => group !== null);
+            }
+
+            // 地區篩選
+            if (currentFilter.district) {
+                filtered = filtered.map(group => {
+                    const filteredLicenses = group.licenses.filter(license => {
+                        const address = license['場所地址'] || '';
+                        return address.includes(currentFilter.district);
+                    });
+
+                    if (filteredLicenses.length > 0) {
+                        return {
+                            ...group,
+                            licenses: filteredLicenses,
+                            licenseCount: filteredLicenses.length
+                        };
+                    }
+                    return null;
+                }).filter(group => group !== null);
+            }
+
+            // 排序
+            filtered.sort((a, b) => {
+                switch (currentFilter.sortBy) {
+                    case 'name-asc':
+                        return a.name.localeCompare(b.name);
+                    case 'name-desc':
+                        return b.name.localeCompare(a.name);
+                    case 'license-count-asc':
+                        return a.licenseCount - b.licenseCount;
+                    case 'license-count-desc':
+                        return b.licenseCount - a.licenseCount;
+                    default:
+                        return 0;
+                }
+            });
+
+            filteredHotels = filtered;
+            updateHotelsList();
+            updateStatistics();
+        }
+
+        function resetFilters() {
+            // 重置表單
+            document.getElementById('search-name').value = '';
+            document.getElementById('filter-license').value = '';
+            document.getElementById('filter-district').value = '';
+            document.getElementById('sort-by').value = 'name-asc';
+            document.getElementById('sort-select').value = 'name-asc';
+
+            // 重置篩選條件
+            currentFilter = {
+                searchName: '',
+                licenseType: '',
+                district: '',
+                sortBy: 'name-asc'
+            };
+
+            // 應用重置後的篩選
+            applyFilters();
+
+            showNotification('篩選條件已重置', 'success');
+        }
+
+        function applySort() {
+            const sortValue = document.getElementById('sort-select').value;
+            currentFilter.sortBy = sortValue;
+            document.getElementById('sort-by').value = sortValue;
+            applyFilters();
+        }
+
+        function updateHotelsList() {
+            const container = document.getElementById('accordion-container');
+
+            if (filteredHotels.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-search"></i>
+                        <p>沒有找到符合條件的場所</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: #9ca3af;">
+                            請嘗試不同的篩選條件
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 生成分組手風琴HTML
+            let accordionHTML = '';
+
+            filteredHotels.forEach((group, groupIndex) => {
+                accordionHTML += `
+                    <div class="group-item" id="group-${groupIndex}">
+                        <div class="group-header" onclick="toggleGroup(${groupIndex})">
+                            <div>
+                                <i class="fas fa-building facility-icon"></i>
+                                <span>${group.name}</span>
+                                <span class="license-count">${group.licenseCount} 張牌照</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div id="group-content-${groupIndex}" class="group-content" style="display:none">
+                `;
+
+                // 按牌照號碼排序
+                group.licenses.sort((a, b) => {
+                    return (a['Licence No.'] || '').localeCompare(b['Licence No.'] || '');
+                });
+
+                group.licenses.forEach((license, licenseIndex) => {
+                    const licenseNo = license['Licence No.'] || '未提供';
+                    const isHotel = licenseNo.startsWith('H');
+
+                    accordionHTML += `
+                        <div class="license-item" id="license-${groupIndex}-${licenseIndex}">
+                            <div class="license-header">
+                                <div class="license-number">
+                                    <i class="fas ${isHotel ? 'fa-hotel' : 'fa-building'}"></i>
+                                    ${licenseNo}
+                                </div>
+                                <button class="expand-details" onclick="toggleLicenseDetails(${groupIndex}, ${licenseIndex})">
+                                    <i class="fas fa-chevron-down"></i>
+                                    查看詳細資訊
+                                </button>
+                            </div>
+                            <div id="license-details-${groupIndex}-${licenseIndex}" class="license-details">
+                                <div class="info-row">
+                                    <div class="info-label">場所地址</div>
+                                    <div class="info-value">${license['場所地址'] || '未提供'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">電話號碼</div>
+                                    <div class="info-value">${license['Premises Phone No.'] || '未提供'}</div>
+                                </div>
+                                ${license['Premises Email Address']
+                            ? `
+                                        <div class="info-row">
+                                            <div class="info-label">電郵地址</div>
+                                            <div class="info-value">
+                                                ${license['Premises Email Address'] ?
+                                `<a href="mailto:${license['Premises Email Address']}">${license['Premises Email Address']}</a>` :
+                                '未提供'}
+                                            </div>
+                                        </div>
+                                    `
+                            : ""
+                        }
+                                ${license['Premises Fax No.'] ? `
+                                    <div class="info-row">
+                                        <div class="info-label">傳真號碼</div>
+                                        <div class="info-value">${license['Premises Fax No.']}</div>
+                                    </div>
+                                ` : ""}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                accordionHTML += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = accordionHTML;
+
+            // 更新篩選結果計數
+            document.getElementById('filtered-count').textContent = filteredHotels.length;
+        }
+
+        function toggleGroup(groupId) {
+            const groupContent = document.getElementById(`group-content-${groupId}`);
+            const header = groupContent.previousElementSibling;
+            const icon = header.querySelector('.fa-chevron-down');
+
+            if (groupContent.style.display === 'none') {
+                groupContent.style.display = 'block';
+                icon.className = 'fas fa-chevron-up';
+                header.classList.remove('collapsed');
+            } else {
+                groupContent.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+                header.classList.add('collapsed');
+            }
+        }
+
+        function toggleLicenseDetails(groupId, licenseId) {
+            const details = document.getElementById(`license-details-${groupId}-${licenseId}`);
+            const button = details.previousElementSibling.querySelector('.expand-details');
+            const icon = button.querySelector('.fa-chevron-down');
+
+            if (details.classList.contains('show')) {
+                details.classList.remove('show');
+                button.innerHTML = '<i class="fas fa-chevron-down"></i>查看詳細資訊';
+                button.classList.remove('collapsed');
+            } else {
+                details.classList.add('show');
+                button.innerHTML = '<i class="fas fa-chevron-up"></i>收起詳細資訊';
+                button.classList.add('collapsed');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // 移除現有通知
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // 創建通知元素
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            // 設定通知樣式
+            Object.assign(notification.style, {
+                position: 'fixed',
+                bottom: '20px',
+                right: '20px',
+                backgroundColor: type === 'success' ? '#10b981' : '#3b82f6',
+                color: 'white',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                zIndex: '3000',
+                animation: 'slideIn 0.3s ease-out'
+            });
+
+            // 添加到文檔
+            document.body.appendChild(notification);
+
+            // 添加CSS動畫
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 3秒後移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 首次加載顯示教程
+        if (!localStorage.getItem('hotelTutorialShown')) {
+            setTimeout(() => {
+                alert("歡迎使用持牌酒店及賓館查詢系統！\n\n• 場所按名稱分組顯示，每個場所可能有多個牌照\n• 點擊場所名稱展開查看該場所的所有牌照\n• 點擊「查看詳細資訊」查看單個牌照的完整資料\n• 使用篩選工具可快速查找特定場所");
+                localStorage.setItem('hotelTutorialShown', 'true');
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
